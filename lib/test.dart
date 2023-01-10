@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 Future<Album> fetchAlbum() async {
   final response = await http.get(
-    Uri.parse('https://jsonplaceholder.typicode.com/albums/1'),
+    Uri.parse('https://jsonplaceholder.typicode.com/posts/1'),
   );
 
   if (response.statusCode == 200) {
@@ -20,7 +20,7 @@ Future<Album> fetchAlbum() async {
   }
 }
 
-Future<Album> updateAlbum(String title) async {
+Future<Album> createAlbum(String title,String id, String body) async {
   final response = await http.put(
     Uri.parse('https://jsonplaceholder.typicode.com/albums/1'),
     headers: <String, String>{
@@ -28,6 +28,9 @@ Future<Album> updateAlbum(String title) async {
     },
     body: jsonEncode(<String, String>{
       'title': title,
+      'id':id,
+      'body':body,
+
     }),
   );
 
@@ -45,13 +48,15 @@ Future<Album> updateAlbum(String title) async {
 class Album {
   final int id;
   final String title;
+  final String body;
 
-  const Album({required this.id, required this.title});
+  const Album({required this.id, required this.title,required this.body});
 
   factory Album.fromJson(Map<String, dynamic> json) {
     return Album(
       id: json['id'],
       title: json['title'],
+      body:json['body'],
     );
   }
 }
@@ -70,7 +75,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
+  final TextEditingController _controller3 = TextEditingController();
   late Future<Album> _futureAlbum;
 
   @override
@@ -101,17 +108,31 @@ class _MyAppState extends State<MyApp> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(snapshot.data!.title),
+                      Text('id: ${snapshot.data!.id}'),
+                      Text('title: ${snapshot.data!.title}'),
+                      Text('body: ${snapshot.data!.body}'),
                       TextField(
-                        controller: _controller,
+                        controller: _controller1,
                         decoration: const InputDecoration(
                           hintText: 'Enter Title',
+                        ),
+                      ),
+                      TextField(
+                        controller: _controller2,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter id',
+                        ),
+                      ),
+                      TextField(
+                        controller: _controller3,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter body',
                         ),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _futureAlbum = updateAlbum(_controller.text);
+                            _futureAlbum = createAlbum(_controller1.text,_controller2.text,_controller3.text);
                           });
                         },
                         child: const Text('Update Data'),
